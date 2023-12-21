@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {}
+const nextConfig = {};
+// TODO: redirect /plan to /plan/create
 
-module.exports = nextConfig
+module.exports = nextConfig;

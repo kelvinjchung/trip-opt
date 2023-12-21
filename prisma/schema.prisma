@@ -1,11 +1,35 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
+}
+
+model Plan {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  destination Destination
+  startDate   DateTime
+  endDate     DateTime
+  locations   Location[]
+
+  @@map("plans")
+}
+
+type Destination {
+  name     String
+  place_id String
+  lat      Float
+  lng      Float
+}
+
+type Location {
+  name     String
+  place_id String
+  lat      Float
+  lng      Float
+  // address
+  types    String[]
 }

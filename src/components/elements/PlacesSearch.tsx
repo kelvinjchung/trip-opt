@@ -1,5 +1,6 @@
 "use client";
 
+import { CheckIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
 import usePlacesAutocomplete from "use-places-autocomplete";
 import { Input } from "../ui/input";
@@ -9,9 +10,19 @@ interface PlacesSearchProps
   requestOptions?: google.maps.places.AutocompleteOptions;
 }
 
-const PlacesSearch = ({ placeholder, requestOptions }: PlacesSearchProps) => {
+const PlacesSearch = ({
+  placeholder,
+  requestOptions,
+  name,
+  ...inputProps
+}: PlacesSearchProps) => {
+  // currIdx is the index of the currently highlighted option
   // currIdx === null when listbox is not expanded
   const [currIdx, setCurrIdx] = useState<number | null>(null);
+
+  // selectedIdx === null when no option is selected
+  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+
   const {
     suggestions: { loading, status, data },
     value,
@@ -24,17 +35,18 @@ const PlacesSearch = ({ placeholder, requestOptions }: PlacesSearchProps) => {
 
   // * FOR TESTING: DELETE LATER
   console.log(`loading: ${loading}\nstatus: ${status}\n data:`, data);
-  console.log(`currIdx: ${currIdx}`);
+  console.log(`currIdx: ${currIdx}\nselectedIdx: ${selectedIdx}`);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
-    setCurrIdx(0);
+    setSelectedIdx(null);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     switch (e.key) {
       case "Enter":
-        console.log("Enter");
+        e.preventDefault();
+        handleSelect();
         break;
       case "Escape":
         e.currentTarget.blur();
@@ -55,22 +67,27 @@ const PlacesSearch = ({ placeholder, requestOptions }: PlacesSearchProps) => {
     }
   };
 
-  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    if (e.target.value !== "" && loading === false) setCurrIdx(0);
+  const handleFocus = () => {
+    setCurrIdx(0);
   };
 
   const handleBlur = () => {
     setCurrIdx(null);
-    setValue("");
+    if (selectedIdx === null) setValue("");
   };
 
   const handlePointerMove = (idx: number) => () => {
     setCurrIdx(idx);
   };
 
-  const handleSelect = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    e.stopPropagation;
-    e.preventDefault();
+  const handleSelect = () => {
+    if (selectedIdx === currIdx) {
+      setSelectedIdx(null);
+      return;
+    } else {
+      setSelectedIdx(currIdx);
+      setValue(data[currIdx!].structured_formatting.main_text, false);
+    }
   };
 
   const suggestions = data.map(
@@ -93,6 +110,7 @@ const PlacesSearch = ({ placeholder, requestOptions }: PlacesSearchProps) => {
       >
         <span>{main_text}</span>
         <span>{secondary_text}</span>
+        {idx === selectedIdx && <CheckIcon />}
       </div>
     ),
   );
@@ -116,6 +134,7 @@ const PlacesSearch = ({ placeholder, requestOptions }: PlacesSearchProps) => {
             <div
               role="listbox"
               id={`placesSearch-listbox`}
+              // to prevent input from losing focus when clicking on listbox options
               onMouseDown={(e) => e.preventDefault()}
             >
               {suggestions}
@@ -125,11 +144,27 @@ const PlacesSearch = ({ placeholder, requestOptions }: PlacesSearchProps) => {
     }
   };
 
+  const aggregateSelectedData = () => {
+    if (selectedIdx !== null) {
+      const place_id = data[selectedIdx].place_id;
+      return (
+        <Input
+          type="hidden"
+          name={`${name}[place_id]`}
+          value={place_id}
+          aria-hidden
+        />
+      );
+    }
+  };
+
   return (
     <div>
       <Input
+        {...inputProps}
         placeholder={placeholder}
         value={value}
+        name={name}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
         onFocus={handleFocus}
@@ -148,6 +183,7 @@ const PlacesSearch = ({ placeholder, requestOptions }: PlacesSearchProps) => {
         }
       />
       {currIdx !== null && renderSuggestions()}
+      {aggregateSelectedData()}
     </div>
   );
 };

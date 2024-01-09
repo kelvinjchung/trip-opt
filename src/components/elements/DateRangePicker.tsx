@@ -10,52 +10,53 @@ import { Calendar } from "../ui/calendar";
 import { Input } from "../ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
-const DateRangePicker = () => {
-  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+interface IDateRangePickerProps {
+  dateRange: DateRange | undefined;
+  setDateRange: React.Dispatch<React.SetStateAction<DateRange | undefined>>;
+  dateFormat?: string;
+}
 
+const DateRangePicker = ({
+  dateRange,
+  setDateRange,
+  dateFormat = "LLL dd",
+}: IDateRangePickerProps) => {
   return (
-    <div>
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className={cn("font-normal", !dateRange && "text-muted-foreground")}
-          >
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {dateRange?.from ? (
-              dateRange.to ? (
-                <>
-                  {format(dateRange.from, "LLL dd")} -{" "}
-                  {format(dateRange.to, "LLL dd")}
-                </>
-              ) : (
-                format(dateRange.from, "LLL dd")
-              )
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          className={cn(
+            "justify-start font-normal",
+            !dateRange && "text-muted-foreground",
+          )}
+        >
+          <CalendarIcon className="mr-2 h-4 w-4" />
+          {dateRange?.from ? (
+            dateRange.to ? (
+              <>
+                {format(dateRange.from, dateFormat)} -{" "}
+                {format(dateRange.to, dateFormat)}
+              </>
             ) : (
-              <span>Pick a date</span>
-            )}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent align="start" className="w-auto p-0">
-          <Calendar
-            initialFocus
-            mode="range"
-            defaultMonth={dateRange?.from}
-            selected={dateRange}
-            onSelect={setDateRange}
-            numberOfMonths={window.innerWidth > 768 ? 2 : 1}
-          />
-        </PopoverContent>
-      </Popover>
-      {dateRange && (
-        <Input
-          type="hidden"
-          name="dateRange"
-          value={JSON.stringify(dateRange)}
-          aria-hidden
+              format(dateRange.from, dateFormat)
+            )
+          ) : (
+            <span>Pick a date</span>
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-auto p-0">
+        <Calendar
+          initialFocus
+          mode="range"
+          defaultMonth={dateRange?.from}
+          selected={dateRange}
+          onSelect={setDateRange}
+          numberOfMonths={window.innerWidth > 768 ? 2 : 1}
         />
-      )}
-    </div>
+      </PopoverContent>
+    </Popover>
   );
 };
 

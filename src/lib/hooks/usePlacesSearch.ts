@@ -3,13 +3,9 @@ import usePlacesAutocomplete, { Suggestion } from "use-places-autocomplete";
 
 interface IUsePlacesSearchProps {
   requestOptions: google.maps.places.AutocompleteOptions;
-  onSelect?: (idx: number, place: Suggestion) => void;
 }
 
-export function usePlacesSearch({
-  requestOptions,
-  onSelect,
-}: IUsePlacesSearchProps) {
+export function usePlacesSearch({ requestOptions }: IUsePlacesSearchProps) {
   const { value, setValue, suggestions } = usePlacesAutocomplete({
     requestOptions,
     cache: 24 * 60 * 60,
@@ -23,18 +19,6 @@ export function usePlacesSearch({
   // selectedIdx === null when no option is selected
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
 
-  const onSelectWithForm = (idx: number, place: Suggestion) => {
-    if (selectedIdx === idx) {
-      setSelectedIdx(null);
-      setCurrIdx(idx);
-      return;
-    } else {
-      setSelectedIdx(idx);
-      setCurrIdx(idx);
-      setValue(place.structured_formatting.main_text, false);
-    }
-  };
-
   return {
     value,
     setValue,
@@ -43,6 +27,5 @@ export function usePlacesSearch({
     setCurrIdx,
     selectedIdx,
     setSelectedIdx,
-    onSelect: onSelect ?? onSelectWithForm,
   };
 }

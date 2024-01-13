@@ -42,3 +42,5 @@ export const createPlan = async (
     if (e instanceof Error) throw new Error(`${e.name}: ${e.message}`);
   }
 };
+
+export const getPlan = async (id: string) => {};

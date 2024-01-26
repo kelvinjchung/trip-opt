@@ -2,6 +2,8 @@
 
 import prisma from "@/lib/db/prisma";
 import { Client as GoogleAPIClient } from "@googlemaps/google-maps-services-js";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createPlanSchema } from "../validation/createplan.validation";
 
@@ -25,7 +27,7 @@ export const createPlan = async (
 
     const plan = await prisma.plan.create({
       data: {
-        name: destination.name,
+        name: `Trip to ${destination.name}`,
         destination: {
           name: destination.name,
           place_id: destination.place_id,
@@ -44,3 +46,19 @@ export const createPlan = async (
 };
 
 export const getPlan = async (id: string) => {};
+
+export const updatePlanName = async (id: string, name: string) => {
+  try {
+    await prisma.plan.update({
+      where: { id },
+      data: { name },
+    });
+
+    revalidatePath(`/plan/${id}`);
+  } catch (e: unknown) {
+    if (e instanceof PrismaClientKnownRequestError) {
+      // TODO: might need to handle error not to expose internal error
+      throw new Error("Unable to update plan");
+    }
+  }
+};

@@ -54,7 +54,8 @@ export const updatePlanName = async (id: string, name: string) => {
       data: { name },
     });
 
-    revalidatePath(`/plan/${id}`);
+    // ? don't need to revalidate path since input already has the new name
+    // revalidatePath(`/plan/${id}`, "page");
   } catch (e: unknown) {
     if (e instanceof PrismaClientKnownRequestError) {
       // TODO: might need to handle error not to expose internal error

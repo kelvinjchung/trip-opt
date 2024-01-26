@@ -31,9 +31,15 @@ const TripNameDisplayInput = ({
     if (!inputRef.current.matches(":hover")) setIsFocused(false);
     inputRef.current.setSelectionRange(0, 0);
     if (prevName !== content) {
-      setPrevName(content);
+      if (!content) {
+        // don't update plan if input is empty
+        setContent(prevName);
+        return;
+      }
       try {
         await updatePlanName(planId, content);
+        // only run below if updatePlanName succeeds
+        setPrevName(content);
       } catch (e) {
         toast({
           variant: "destructive",
@@ -41,6 +47,7 @@ const TripNameDisplayInput = ({
           description:
             "We were unable to update your trip name. Please try again.",
         });
+        setContent(prevName);
       }
     }
   };
@@ -59,7 +66,7 @@ const TripNameDisplayInput = ({
       </div>
       <input
         ref={inputRef}
-        defaultValue={tripName}
+        value={content}
         placeholder="Enter your trip name"
         onChange={(e) => setContent(e.target.value)}
         onMouseEnter={() => setIsFocused(true)}

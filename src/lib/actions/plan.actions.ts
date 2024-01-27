@@ -2,10 +2,20 @@
 
 import prisma from "@/lib/db/prisma";
 import { Client as GoogleAPIClient } from "@googlemaps/google-maps-services-js";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createPlanSchema } from "../validation/createplan.validation";
+
+export const getPlan = async (id: string) => {
+  try {
+    const plan = await prisma.plan.findUnique({
+      where: { id },
+    });
+    return plan;
+  } catch (e: unknown) {
+    throw new Error("Plan not found");
+  }
+};
 
 export const createPlan = async (
   formData: z.infer<typeof createPlanSchema>,
@@ -45,8 +55,6 @@ export const createPlan = async (
   }
 };
 
-export const getPlan = async (id: string) => {};
-
 export const updatePlanName = async (id: string, name: string) => {
   try {
     await prisma.plan.update({
@@ -57,9 +65,7 @@ export const updatePlanName = async (id: string, name: string) => {
     // ? don't need to revalidate path since input already has the new name
     // revalidatePath(`/plan/${id}`, "page");
   } catch (e: unknown) {
-    if (e instanceof PrismaClientKnownRequestError) {
-      // TODO: might need to handle error not to expose internal error
-      throw new Error("Unable to update plan");
-    }
+    // TODO: might need to handle error not to expose internal error
+    throw new Error("Unable to update plan");
   }
 };

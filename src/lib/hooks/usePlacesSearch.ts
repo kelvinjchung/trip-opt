@@ -2,7 +2,7 @@ import { useState } from "react";
 import usePlacesAutocomplete, { Suggestion } from "use-places-autocomplete";
 
 interface IUsePlacesSearchProps {
-  requestOptions: google.maps.places.AutocompleteOptions;
+  requestOptions: Omit<google.maps.places.AutocompletionRequest, "input">;
 }
 
 export function usePlacesSearch({ requestOptions }: IUsePlacesSearchProps) {

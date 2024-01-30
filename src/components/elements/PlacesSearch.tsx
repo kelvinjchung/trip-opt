@@ -130,70 +130,66 @@ const PlacesSearchInput = forwardRef<HTMLInputElement, PlacesSearchInputProps>(
 PlacesSearchInput.displayName = "PlacesSearchInput";
 PlacesSearch.Input = PlacesSearchInput;
 
-const PlacesSearchList = ({ children }: { children: React.ReactNode }) => {
+const PlacesSearchListBox = () => {
   const className =
     "absolute my-1 w-full rounded-md border border-input bg-white p-3 text-sm shadow-md";
   const {
     listboxId,
-    suggestions: { loading, status },
+    suggestions: { loading, status, data },
+    currIdx,
+    setCurrIdx,
+    selectedIdx,
+    onSelect,
   } = usePlacesSearchContext();
-  return loading ? (
-    // TODO: change to shadcn skeleton
-    <div role="progressbar" className={className}>
-      Loading...
-    </div>
-  ) : status === "OK" ? (
-    <div
-      role="listbox"
-      id={`placesSearch-${listboxId}`}
-      onMouseDown={(e) => e.preventDefault()}
-      className={cn(className, "p-1")}
-    >
-      {children}
-    </div>
-  ) : (
-    <div role="presentation" className={className}>
-      No results found.
-    </div>
-  );
-};
-PlacesSearch.List = PlacesSearchList;
-
-interface PlacesSearchOptionProps {
-  mainText: string;
-  subText: string;
-  idx: number;
-}
-
-const PlacesSearchOption = ({
-  mainText,
-  subText,
-  idx,
-}: PlacesSearchOptionProps) => {
-  const { listboxId, currIdx, setCurrIdx, selectedIdx, onSelect } =
-    usePlacesSearchContext();
 
   const handlePointerMove = (idx: number) => () => {
     setCurrIdx(idx);
   };
 
   return (
-    <div
-      id={`placesSearch-${listboxId}-option-${idx}`}
-      onPointerMove={handlePointerMove(idx)}
-      onClick={() => onSelect(idx)}
-      role="option"
-      aria-selected={currIdx === idx}
-      className="flex cursor-pointer items-center rounded-md px-2 py-1.5 aria-selected:bg-accent aria-selected:text-accent-foreground"
-    >
-      <div className="flex flex-col">
-        <span className="text-sm">{mainText}</span>
-        <span className="text-xs">{subText}</span>
+    currIdx !== null &&
+    status !== "" &&
+    (loading ? (
+      // TODO: change to shadcn skeleton
+      <div role="progressbar" className={className}>
+        Loading...
       </div>
-      {idx === selectedIdx && <CheckIcon className="ml-auto h-6 w-6" />}
-    </div>
+    ) : status === "OK" ? (
+      <div
+        role="listbox"
+        id={`placesSearch-${listboxId}`}
+        onMouseDown={(e) => e.preventDefault()}
+        className={cn(className, "p-1")}
+      >
+        {data.map((suggestion, idx) => (
+          <div
+            key={suggestion.place_id}
+            id={`placesSearch-${listboxId}-option-${idx}`}
+            onPointerMove={handlePointerMove(idx)}
+            onClick={() => onSelect(idx)}
+            role="option"
+            aria-selected={currIdx === idx}
+            className="flex cursor-pointer items-center rounded-md px-2 py-1.5 aria-selected:bg-accent aria-selected:text-accent-foreground"
+          >
+            <div className="flex flex-col">
+              <span className="text-sm">
+                {suggestion.structured_formatting.main_text}
+              </span>
+              <span className="text-xs">
+                {suggestion.structured_formatting.secondary_text}
+              </span>
+            </div>
+            {idx === selectedIdx && <CheckIcon className="ml-auto h-6 w-6" />}
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div role="presentation" className={className}>
+        No results found.
+      </div>
+    ))
   );
 };
-PlacesSearch.Option = PlacesSearchOption;
+PlacesSearch.ListBox = PlacesSearchListBox;
 
 export { PlacesSearch };

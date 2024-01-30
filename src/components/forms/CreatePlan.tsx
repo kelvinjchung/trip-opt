@@ -96,21 +96,7 @@ const CreatePlan = () => {
                     setValue={setValue}
                   />
                 </FormControl>
-                {placesSearchProps.currIdx !== null &&
-                  suggestions.status !== "" && (
-                    <PlacesSearch.List>
-                      {suggestions.data.map((suggestion, idx) => (
-                        <PlacesSearch.Option
-                          key={suggestion.place_id}
-                          mainText={suggestion.structured_formatting.main_text}
-                          subText={
-                            suggestion.structured_formatting.secondary_text
-                          }
-                          idx={idx}
-                        />
-                      ))}
-                    </PlacesSearch.List>
-                  )}
+                <PlacesSearch.ListBox />
               </PlacesSearch>
               <FormMessage />
             </FormItem>

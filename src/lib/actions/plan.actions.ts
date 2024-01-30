@@ -62,3 +62,57 @@ export const updatePlanName = async (id: string, name: string) => {
     throw new Error("Unable to update plan");
   }
 };
+
+export const getLocations = async (id: string) => {
+  try {
+    const locations = await prisma.location.findMany({
+      where: { planId: id },
+    });
+
+    return locations;
+  } catch (e) {
+    throw new Error("Unable to get locations");
+  }
+};
+
+export const addLocation = async (
+  planId: string,
+  placeName: string,
+  place_id: string,
+) => {
+  try {
+    const geocodeResponse = await getGeocode(place_id);
+    const { lat, lng } = geocodeResponse.geometry.location;
+    const location = await prisma.location.create({
+      data: {
+        name: placeName,
+        place_id,
+        lat,
+        lng,
+        address: geocodeResponse.formatted_address,
+        types: geocodeResponse.types,
+        Plan: {
+          connect: {
+            id: planId,
+          },
+        },
+      },
+    });
+
+    revalidatePath(`/plan/${planId}`, "page");
+  } catch (e: unknown) {
+    throw new Error("Unable to add location");
+  }
+};
+
+export const deleteLocation = async (planId: string, locationId: string) => {
+  try {
+    await prisma.location.delete({
+      where: { id: locationId },
+    });
+
+    revalidatePath(`/plan/${planId}`, "page");
+  } catch (e: unknown) {
+    throw new Error("Unable to delete location");
+  }
+};

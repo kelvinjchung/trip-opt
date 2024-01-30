@@ -4,6 +4,7 @@ import prisma from "@/lib/db/prisma";
 import { Client as GoogleAPIClient } from "@googlemaps/google-maps-services-js";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { getGeocode } from "../googleUtils";
 import { createPlanSchema } from "../validation/createplan.validation";
 
 export const getPlan = async (id: string) => {
@@ -21,19 +22,11 @@ export const createPlan = async (
   formData: z.infer<typeof createPlanSchema>,
 ) => {
   const { destination, dates } = formData;
-  const client = new GoogleAPIClient({});
 
   try {
-    const response = await client
-      .geocode({
-        params: {
-          key: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
-          place_id: destination.place_id,
-        },
-      })
-      .then((r) => r.data.results[0]);
+    const geocodeResponse = await getGeocode(destination.place_id);
 
-    const { lat, lng } = response.geometry.location;
+    const { lat, lng } = geocodeResponse.geometry.location;
 
     const plan = await prisma.plan.create({
       data: {

@@ -4,16 +4,10 @@ import { updatePlanName } from "@/lib/actions/plan.actions";
 import { cn } from "@/lib/utils";
 import { useRef, useState } from "react";
 import { useToast } from "../ui/use-toast";
+import { usePlanContext } from "./PlanContainer";
 
-interface TripNameDisplayInputProps {
-  tripName: string;
-  planId: string;
-}
-
-const TripNameDisplayInput = ({
-  tripName,
-  planId,
-}: TripNameDisplayInputProps) => {
+const TripNameDisplayInput = () => {
+  const { name: tripName, id: planId } = usePlanContext();
   const [prevName, setPrevName] = useState(tripName);
   const [content, setContent] = useState(tripName);
   const [isFocused, setIsFocused] = useState(false);

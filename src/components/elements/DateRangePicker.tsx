@@ -3,25 +3,27 @@
 import { cn } from "@/lib/utils";
 import { CalendarIcon } from "@radix-ui/react-icons";
 import { format } from "date-fns";
-import { DateRange } from "react-day-picker";
+import { DateRange, SelectRangeEventHandler } from "react-day-picker";
 import { Button } from "../ui/button";
 import { Calendar } from "../ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
 interface DateRangePickerProps {
-  dateRange: DateRange;
-  setDateRange: React.Dispatch<React.SetStateAction<DateRange | undefined>>;
+  dateRange: DateRange | undefined;
+  setDateRange: SelectRangeEventHandler;
   dateFormat?: string;
+  onOpenChange?: (open: boolean) => void;
 }
 
 const DateRangePicker = ({
   dateRange,
   setDateRange,
   dateFormat = "LLL dd",
+  onOpenChange: handleOpenChange,
 }: DateRangePickerProps) => {
   return (
     <div>
-      <Popover>
+      <Popover onOpenChange={handleOpenChange}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"

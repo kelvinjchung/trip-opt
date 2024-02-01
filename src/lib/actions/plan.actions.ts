@@ -14,7 +14,9 @@ export const getPlan = async (id: string) => {
     });
     return plan;
   } catch (e: unknown) {
-    throw new Error("Plan not found");
+    // throw new Error("Plan not found");
+    // notFound();
+    // return null;
   }
 };
 
@@ -38,7 +40,7 @@ export const createPlan = async (
           lng,
         },
         startDate: dates.from,
-        endDate: dates.to,
+        endDate: dates.to ?? dates.from,
       },
     });
 
@@ -60,6 +62,21 @@ export const updatePlanName = async (id: string, name: string) => {
   } catch (e: unknown) {
     // TODO: might need to handle error not to expose internal error
     throw new Error("Unable to update plan");
+  }
+};
+
+export const updatePlanDates = async (
+  id: string,
+  newStartDate: Date,
+  newEndDate: Date,
+) => {
+  try {
+    await prisma.plan.update({
+      where: { id },
+      data: { startDate: newStartDate, endDate: newEndDate },
+    });
+  } catch (e) {
+    throw new Error("Unable to update plan dates");
   }
 };
 

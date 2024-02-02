@@ -13,7 +13,7 @@ export const usePlanContext = () => {
   return context;
 };
 
-const PlanContainer = ({
+const PlanPageContainer = ({
   plan,
   children,
 }: {
@@ -22,9 +22,9 @@ const PlanContainer = ({
 }) => {
   return (
     <PlanContext.Provider value={plan}>
-      <div className="grid h-screen grid-cols-3 md:grid-cols-5">{children}</div>
+      <div className="flex h-screen w-full">{children}</div>
     </PlanContext.Provider>
   );
 };
 
-export default PlanContainer;
+export default PlanPageContainer;

@@ -132,7 +132,7 @@ PlacesSearch.Input = PlacesSearchInput;
 
 const PlacesSearchListBox = () => {
   const className =
-    "absolute my-1 w-full rounded-md border border-input bg-white p-3 text-sm shadow-md";
+    "z-30 absolute my-1 w-full rounded-md border border-input bg-white p-3 text-sm shadow-md";
   const {
     listboxId,
     suggestions: { loading, status, data },

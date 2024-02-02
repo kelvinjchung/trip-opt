@@ -5,7 +5,7 @@ import { DateRange } from "react-day-picker";
 import { Button } from "../ui/button";
 import { useToast } from "../ui/use-toast";
 import DateRangePicker from "./DateRangePicker";
-import { usePlanContext } from "./PlanContainer";
+import { usePlanContext } from "./PlanPageContainer";
 import TripNameDisplayInput from "./TripNameDisplayInput";
 
 const TripHeader = () => {

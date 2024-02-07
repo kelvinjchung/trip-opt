@@ -8,6 +8,7 @@ import {
   differenceInCalendarDays,
   eachDayOfInterval,
   isEqual,
+  isWithinInterval,
   subDays,
 } from "date-fns";
 import React, { useState } from "react";
@@ -55,21 +56,15 @@ const TripHeader = () => {
       !isEqual(dateRange.to, endDate)
     ) {
       // check if removed day has locations and ask for confirmation
-      const removedDays: Date[] = [];
-      if (differenceInCalendarDays(dateRange.from, startDate) > 0) {
-        const removedDaysLeft = eachDayOfInterval({
-          start: startDate,
-          end: subDays(dateRange.from, 1),
-        });
-        removedDays.push(...removedDaysLeft);
-      }
-      if (differenceInCalendarDays(endDate, dateRange.to) > 0) {
-        const removedDaysRight = eachDayOfInterval({
-          start: addDays(dateRange.to, 1),
-          end: endDate,
-        });
-        removedDays.push(...removedDaysRight);
-      }
+      // removedDays is an array of the dates that are in the original date range
+      // but not in the new selected date range
+      const removedDays = eachDayOfInterval({
+        start: startDate,
+        end: endDate,
+      }).filter(
+        (d) =>
+          !isWithinInterval(d, { start: dateRange.from!, end: dateRange.to! }),
+      );
 
       const locationsByDay = await getLocationsByDay(
         planId,

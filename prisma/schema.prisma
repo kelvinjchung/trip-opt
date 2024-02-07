@@ -10,10 +10,12 @@ datasource db {
 model Plan {
   id          String      @id @default(auto()) @map("_id") @db.ObjectId
   name        String
+  // user
   destination Destination
   startDate   DateTime
   endDate     DateTime
   locations   Location[]
+  // matrix
 
   @@map("plans")
 }
@@ -25,11 +27,19 @@ type Destination {
   lng      Float
 }
 
-type Location {
+model Location {
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
   name     String
   place_id String
   lat      Float
   lng      Float
-  // address
+  address  String
   types    String[]
+  // day      Int? // 0-indexed: 0 is the first day 
+  dateTime DateTime?
+  locked   Boolean // if true, the location is locked to the day
+  Plan     Plan      @relation(fields: [planId], references: [id], onDelete: Cascade)
+  planId   String    @db.ObjectId
+
+  @@map("locations")
 }

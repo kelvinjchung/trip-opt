@@ -4,9 +4,10 @@ import {
   deleteLocation,
   updateLocationDate,
 } from "@/lib/actions/location.actions";
+import { cn } from "@/lib/utils";
 import { useDraggable } from "@dnd-kit/core";
 import { TrashIcon } from "@radix-ui/react-icons";
-import { addDays, differenceInCalendarDays, isEqual } from "date-fns";
+import { addDays, differenceInCalendarDays, format, isEqual } from "date-fns";
 import { useState } from "react";
 import { Button } from "../ui/button";
 import DatePicker from "./DatePicker";
@@ -30,17 +31,24 @@ const LocationCard = ({
   //   id: locationId,
   // });
 
-  const { id: planId, startDate } = usePlanContext();
-  const [selectedDate, setSelectedDate] = useState<Date | null>(date);
+  const { id: planId } = usePlanContext();
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+    date ?? undefined,
+  );
 
   const handleDeleteClick = async (locationId: string) => {
     await deleteLocation(planId, locationId);
   };
 
-  const handleDateSelect = async (date: Date) => {
-    const day = differenceInCalendarDays(date, startDate);
+  const handleDateSelect = async (date: Date | undefined) => {
+    // TODO: CHANGE
+    if (!date) {
+      setSelectedDate(undefined);
+      await updateLocationDate(planId, locationId, null);
+      return;
+    }
     setSelectedDate(date);
-    await updateLocationDate(planId, locationId, day);
+    await updateLocationDate(planId, locationId, date);
   };
 
   return (
@@ -66,15 +74,30 @@ const LocationCard = ({
               note Add note Add note Add note Add note Add note
             </p> */}
           </div>
-          <div className="mt-2 flex justify-end gap-6">
-            <DatePicker date={selectedDate} onSelect={handleDateSelect} />
-            <Button
-              onClick={() => handleDeleteClick(locationId)}
-              variant="ghost"
-              size="icon"
-            >
-              <TrashIcon className="h-6 w-6" />
-            </Button>
+          <div
+            className={cn(
+              "mt-2 flex items-center justify-between",
+              !date && "justify-end",
+            )}
+          >
+            {date ? (
+              <div className="text-sm text-muted-foreground">
+                <p>
+                  Locked to:{" "}
+                  <span className="font-medium">{format(date, "M/d")}</span>
+                </p>
+              </div>
+            ) : null}
+            <div className="flex items-center gap-6">
+              <DatePicker date={selectedDate} onSelect={handleDateSelect} />
+              <Button
+                onClick={() => handleDeleteClick(locationId)}
+                variant="ghost"
+                size="icon"
+              >
+                <TrashIcon className="h-6 w-6" />
+              </Button>
+            </div>
           </div>
         </div>
       </div>

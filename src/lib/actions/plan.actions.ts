@@ -1,7 +1,6 @@
 "use server";
 
 import prisma from "@/lib/db/prisma";
-import { Client as GoogleAPIClient } from "@googlemaps/google-maps-services-js";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getGeocode } from "../googleUtils";
@@ -75,61 +74,9 @@ export const updatePlanDates = async (
       where: { id },
       data: { startDate: newStartDate, endDate: newEndDate },
     });
+
+    revalidatePath(`/plan/${id}`, "page");
   } catch (e) {
     throw new Error("Unable to update plan dates");
-  }
-};
-
-export const getLocations = async (id: string) => {
-  try {
-    const locations = await prisma.location.findMany({
-      where: { planId: id },
-    });
-
-    return locations;
-  } catch (e) {
-    throw new Error("Unable to get locations");
-  }
-};
-
-export const addLocation = async (
-  planId: string,
-  placeName: string,
-  place_id: string,
-) => {
-  try {
-    const geocodeResponse = await getGeocode(place_id);
-    const { lat, lng } = geocodeResponse.geometry.location;
-    const location = await prisma.location.create({
-      data: {
-        name: placeName,
-        place_id,
-        lat,
-        lng,
-        address: geocodeResponse.formatted_address,
-        types: geocodeResponse.types,
-        Plan: {
-          connect: {
-            id: planId,
-          },
-        },
-      },
-    });
-
-    revalidatePath(`/plan/${planId}`, "page");
-  } catch (e: unknown) {
-    throw new Error("Unable to add location");
-  }
-};
-
-export const deleteLocation = async (planId: string, locationId: string) => {
-  try {
-    await prisma.location.delete({
-      where: { id: locationId },
-    });
-
-    revalidatePath(`/plan/${planId}`, "page");
-  } catch (e: unknown) {
-    throw new Error("Unable to delete location");
   }
 };
